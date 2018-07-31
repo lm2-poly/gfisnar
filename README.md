@@ -1,8 +1,7 @@
+This code is designed to transform a .gcode file obtained from a FDM 3D printer slicer to the format required by Fisnar.
+
 # Basic Usage
 
-```python
-from gfishnar import *
+Edit 'input.yaml' and set your parameters
 
-deck = InputDeck("./input_elas_1D.yaml")
-
-```
+Then execute 'main.py' in order to try the code.
