@@ -3,6 +3,36 @@ import math
 
 class Gen():
 
+	def __init__(self,deck,yaml_deck):
+
+		self.Z=Gen.Zcoord(self,deck['X'],deck['Y'],deck['layers'],deck['end_index'])
+
+		self.coordinates=Gen.coordinates(self,deck['X'],deck['Y'],self.Z)
+
+		self.distance_checked_coord=Gen.DistanceCheck(self,self.coordinates,yaml_deck['dist_min'])[0]
+
+		self.indices_to_keep=Gen.DistanceCheck(self,self.coordinates,yaml_deck['dist_min'])[1]
+
+		self.mod_G=Gen.modG(self,deck['G'],deck['sublayers'],deck['end_index'])
+
+		self.fisnar_status=Gen.status(self,self.mod_G)
+
+		self.speed=Gen.speed(self,self.mod_G,self.distance_checked_coord,self.indices_to_keep,
+			yaml_deck['travel_speed'],yaml_deck['print_speed'])[0]
+
+		self.mod_G_to_keep=Gen.speed(self,self.mod_G,self.distance_checked_coord,self.indices_to_keep,
+			yaml_deck['travel_speed'],yaml_deck['print_speed'])[1]
+
+		self.rotation=Gen.rotation(self,self.distance_checked_coord,yaml_deck['rotation_angle'])
+
+		self.deck={'status':self.fisnar_status
+		,'coord_to_keep':self.distance_checked_coord
+		,'indices_to_keep':self.indices_to_keep
+		,'mod_G_to_keep':self.mod_G_to_keep
+		,'Speed':self.speed
+		,'rotation':self.rotation
+	}
+
 	def Zcoord(self,X,Y,layers,end_index):
 		'''gets the height of every print point'''
 		i=0
@@ -27,22 +57,20 @@ class Gen():
 		ZCor=[float(x[4:]) for x in Z]
 		return zip(XCor,YCor,ZCor)
 
-	def distance(self,coordinates,min_dist):
+	def DistanceCheck(self,coordinates,min_dist):
 		''' calculates the distance between consecutive points in the G-code'''
 		D=[]
 		for i in range(0,len(coordinates)-1):
 			dist=math.sqrt((coordinates[i+1][0]-coordinates[i][0])**2
 				+(coordinates[i+1][1]-coordinates[i][1])**2
 				+(coordinates[i+1][2]-coordinates[i][2])**2)
-			dist=abs(dist)
 			D.append(dist)
-		distance_indices_to_keep=[i for i,x in enumerate(D) if D[i]>min_dist]
-		distance_checked_coord=[x for i,x in enumerate(coordinates) if i in distance_indices_to_keep]
-		#if the last distance check is passed, append our last coord:
-		if max(distance_indices_to_keep)==len(D)-1:
-			distance_checked_coord.append(coordinates[-1])
-
-		return distance_checked_coord
+		indices_to_keep=[i for i,x in enumerate(D) if D[i]>min_dist]
+		distance_checked_coord=[x for i,x in enumerate(coordinates) if i in indices_to_keep]
+		#Appends our last coord:
+		distance_checked_coord.append(coordinates[-1])
+		indices_to_keep.append(len(coordinates)-1)
+		return distance_checked_coord,indices_to_keep,D
 
 	def modG(self,G,sublayers,end_index):
 		'''modifies the G status from the Gcode to match the Fishnar G status'''  
@@ -111,6 +139,20 @@ class Gen():
 
 		return status
 
+	def speed(self,mod_G,distance_checked_coord,indices_to_keep,travel_speed,print_speed):
+		mod_G_to_keep=[x for i,x in enumerate(mod_G) if i in indices_to_keep]
+		speed=[]
+		for i in range(0,len(mod_G_to_keep)):
+			if mod_G_to_keep[i]=='G0':
+				speed.append(travel_speed)
+			else:
+				speed.append(print_speed)
+
+		return speed,mod_G_to_keep
+
+	def rotation(self,Coord_to_keep,angle):
+		Rotation=[angle]*len(Coord_to_keep)
+		return Rotation
 
 
 
