@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import math
-
+import sys
 class Gen():
 
 	def __init__(self,deck,yaml_deck):
@@ -60,6 +60,7 @@ class Gen():
 	def DistanceCheck(self,coordinates,min_dist):
 		''' calculates the distance between consecutive points in the G-code'''
 		D=[]
+
 		for i in range(0,len(coordinates)-1):
 			dist=math.sqrt((coordinates[i+1][0]-coordinates[i][0])**2
 				+(coordinates[i+1][1]-coordinates[i][1])**2
@@ -70,7 +71,27 @@ class Gen():
 		#Appends our last coord:
 		distance_checked_coord.append(coordinates[-1])
 		indices_to_keep.append(len(coordinates)-1)
-		return distance_checked_coord,indices_to_keep,D
+ 		#While the distance is inferior the set minimal distance, points will be refined:
+		new_coord=distance_checked_coord
+		new_D=[0]*(len(new_coord)-1)
+		count=0
+		while min(new_D)<min_dist:	
+			for i in range(0,len(new_coord)-1):
+				dist=math.sqrt((new_coord[i+1][0]-new_coord[i][0])**2
+					+(new_coord[i+1][1]-new_coord[i][1])**2
+					+(new_coord[i+1][2]-new_coord[i][2])**2)
+				new_D[i]=dist
+			new_indices=[i for i,x in enumerate(new_D) if new_D[i]>min_dist]
+			distance_checked_coord=[x for i,x in enumerate(new_coord) if i in new_indices]
+			#Appends our last coord:
+			distance_checked_coord.append(new_coord[-1])
+			new_indices.append(len(new_coord)-1)
+			new_coord=distance_checked_coord
+			count+=1
+			if count==1000: #the system exits if after 1000 iteration the points are still too close for fisnar
+				print 'the distance check results in points being too close for Fisnar'
+				sys.exit(1)	
+		return new_coord,new_indices,new_D
 
 	def modG(self,G,sublayers,end_index):
 		'''modifies the G status from the Gcode to match the Fishnar G status'''  
