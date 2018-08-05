@@ -2,7 +2,7 @@ InputFile:
     Path: "cube.gcode"
 
 Minimal print distance:
-    D: 0.1
+    D: 0.9
 
 Initial position:
     X: 60
