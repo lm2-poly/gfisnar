@@ -5,5 +5,3 @@ This code is designed to transform a .gcode file obtained from a FDM 3D printer 
 Edit 'input.yaml' and set your parameters
 
 Then execute 'main.py' in order to try the code.
-
-The code will produce an output.csv file to open with excel
