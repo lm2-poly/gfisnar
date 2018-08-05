@@ -89,7 +89,7 @@ class Gen():
 			new_coord=distance_checked_coord
 			count+=1
 			if count==1000: #the system exits if after 1000 iteration the points are still too close for fisnar
-				print 'the distance check results in points being too close for Fisnar'
+				print 'the distance check results in points being too close after 1000 iterations'
 				sys.exit(1)	
 		return new_coord,new_indices,new_D
 
