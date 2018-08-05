@@ -13,14 +13,14 @@ class Gen():
 
 		self.indices_to_keep=Gen.DistanceCheck(self,self.coordinates,yaml_deck['dist_min'])[1]
 
-		self.mod_G=Gen.modG(self,deck['G'],deck['sublayers'],deck['end_index'])
+		self.mod_G=Gen.modG(self,deck['G'],deck['sublayers'],deck['end_index'],self.indices_to_keep)
 
 		self.fisnar_status=Gen.status(self,self.mod_G)
 
-		self.speed=Gen.speed(self,self.mod_G,self.distance_checked_coord,self.indices_to_keep,
+		self.speed=Gen.speed(self,self.mod_G,self.distance_checked_coord,
 			yaml_deck['travel_speed'],yaml_deck['print_speed'])[0]
 
-		self.mod_G_to_keep=Gen.speed(self,self.mod_G,self.distance_checked_coord,self.indices_to_keep,
+		self.mod_G_to_keep=Gen.speed(self,self.mod_G,self.distance_checked_coord,
 			yaml_deck['travel_speed'],yaml_deck['print_speed'])[1]
 
 		self.rotation=Gen.rotation(self,self.distance_checked_coord,yaml_deck['rotation_angle'])
@@ -93,7 +93,7 @@ class Gen():
 				sys.exit(1)	
 		return new_coord,new_indices,new_D
 
-	def modG(self,G,sublayers,end_index):
+	def modG(self,G,sublayers,end_index,indices_to_keep):
 		'''modifies the G status from the Gcode to match the Fishnar G status'''  
 		#si sublayer est support mettre G0:
 		value = 'support'
@@ -137,6 +137,8 @@ class Gen():
 		if len(mod_G)!=len(G[0]):
 			print 'Modified G status length does not match points matrix length'
 
+		mod_G=[x for i,x in enumerate(mod_G) if i in indices_to_keep]
+
 		return mod_G
 
 	def status(self,mod_G):
@@ -160,16 +162,15 @@ class Gen():
 
 		return status
 
-	def speed(self,mod_G,distance_checked_coord,indices_to_keep,travel_speed,print_speed):
-		mod_G_to_keep=[x for i,x in enumerate(mod_G) if i in indices_to_keep]
+	def speed(self,mod_G,distance_checked_coord,travel_speed,print_speed):
 		speed=[]
-		for i in range(0,len(mod_G_to_keep)):
-			if mod_G_to_keep[i]=='G0':
+		for i in range(0,len(mod_G)):
+			if mod_G[i]=='G0':
 				speed.append(travel_speed)
 			else:
 				speed.append(print_speed)
 
-		return speed,mod_G_to_keep
+		return speed,mod_G
 
 	def rotation(self,Coord_to_keep,angle):
 		Rotation=[angle]*len(Coord_to_keep)
