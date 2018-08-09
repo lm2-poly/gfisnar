@@ -87,8 +87,13 @@ class Gen():
 					+(coordinates[i+1][1]-coordinates[i][1])**2
 					+(coordinates[i+1][2]-coordinates[i][2])**2)
 			j=i
+<<<<<<< HEAD
 			print'i=j=',i
 			print 'premier calcul dist=',dist
+=======
+			print 'premier calcul dist=',dist
+			print'i=j=',i
+>>>>>>> 7b00c303acfb88904442bfa4c572615a03e2f862
 			if dist>min_dist:
 				i=i+1
 				last_i=i
@@ -104,7 +109,10 @@ class Gen():
 						i=k #quits the loop
 					else:
 						indices_to_remove.append(j)
+<<<<<<< HEAD
 						print 'point',j,'is removed'
+=======
+>>>>>>> 7b00c303acfb88904442bfa4c572615a03e2f862
 						dist=math.sqrt((coordinates[j+1][0]-coordinates[i][0])**2
 							+(coordinates[j+1][1]-coordinates[i][1])**2
 							+(coordinates[j+1][2]-coordinates[i][2])**2)
@@ -122,7 +130,11 @@ class Gen():
 			D.append(dist)
 		print 'minimal distance=',min(D)
 		if dist<min_dist:
+<<<<<<< HEAD
 			print dist,'distance chek failed : points too close'
+=======
+			print dist,'erreur distance trop petite'
+>>>>>>> 7b00c303acfb88904442bfa4c572615a03e2f862
 
 		return new_coord,indices_to_keep
 
