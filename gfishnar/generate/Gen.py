@@ -15,7 +15,9 @@ class Gen():
 
 		self.mod_G=Gen.modG(self,deck['G'],deck['sublayers'],deck['end_index'],self.indices_to_keep)
 
-		self.fisnar_status=Gen.status(self,self.mod_G)
+		self.T=Gen.T(self,deck['X'],deck['Y'],deck['T'],deck['end_index'])
+
+		self.fisnar_status=Gen.status(self,self.T,self.indices_to_keep)
 
 		self.speed=Gen.speed(self,self.mod_G,self.distance_checked_coord,
 			yaml_deck['travel_speed'],yaml_deck['print_speed'])[0]
@@ -23,6 +25,7 @@ class Gen():
 		self.mod_G_to_keep=Gen.speed(self,self.mod_G,self.distance_checked_coord,
 			yaml_deck['travel_speed'],yaml_deck['print_speed'])[1]
 
+		
 		self.rotation=Gen.rotation(self,self.distance_checked_coord,yaml_deck['rotation_angle'])
 
 		self.deck={'status':self.fisnar_status
@@ -31,6 +34,7 @@ class Gen():
 		,'mod_G_to_keep':self.mod_G_to_keep
 		,'Speed':self.speed
 		,'rotation':self.rotation
+		,'extruder':self.T
 	}
 
 	def Zcoord(self,X,Y,layers,end_index):
@@ -50,6 +54,23 @@ class Gen():
 			print 'Y and Z coordinates does not match'
 		return Z
 
+	def T(self,X,Y,extruder,end_index):
+		'''appends which extruder in use for every print point'''
+		i=0
+		T=[]
+		for j in range(0,len(extruder[0])):
+			while X[1][i]<extruder[1][j]:
+				T.append(extruder[0][j-1])
+				i=i+1
+			if X[1][i]>extruder[1][-1]: #for the last layer
+				for k in range(i,len(X[0])):
+					T.append(extruder[0][-1])
+		if len(T)!=len(X[0]):
+			print 'X and T coordinates does not match'
+		if len(T)!=len(Y[0]):
+			print 'Y and T coordinates does not match'
+		return T
+
 	def coordinates(self,X,Y,Z):
 		'''Groups the coordinates of every point'''
 		XCor=[float(x[1:]) for x in X[0]]
@@ -58,40 +79,52 @@ class Gen():
 		return zip(XCor,YCor,ZCor)
 
 	def DistanceCheck(self,coordinates,min_dist):
-		''' calculates the distance between consecutive points in the G-code'''
-		D=[]
+		i=0
+		indices_to_remove=[]
+		while i<(len(coordinates)-1):
 
-		for i in range(0,len(coordinates)-1):
 			dist=math.sqrt((coordinates[i+1][0]-coordinates[i][0])**2
-				+(coordinates[i+1][1]-coordinates[i][1])**2
-				+(coordinates[i+1][2]-coordinates[i][2])**2)
-			D.append(dist)
-		indices_to_keep=[i for i,x in enumerate(D) if D[i]>min_dist]
-		distance_checked_coord=[x for i,x in enumerate(coordinates) if i in indices_to_keep]
-		#Appends our last coord:
-		distance_checked_coord.append(coordinates[-1])
-		indices_to_keep.append(len(coordinates)-1)
- 		#While the distance is inferior the set minimal distance, points will be refined:
-		new_coord=distance_checked_coord
-		new_D=[0]*(len(new_coord)-1)
-		count=0
-		while min(new_D)<min_dist:	
-			for i in range(0,len(new_coord)-1):
-				dist=math.sqrt((new_coord[i+1][0]-new_coord[i][0])**2
+					+(coordinates[i+1][1]-coordinates[i][1])**2
+					+(coordinates[i+1][2]-coordinates[i][2])**2)
+			j=i
+			print'i=j=',i
+			print 'premier calcul dist=',dist
+			if dist>min_dist:
+				i=i+1
+				last_i=i
+			else:
+				while dist<min_dist:
+					j=j+1
+					print'entre dans while j=',j
+					if j+1>=len(coordinates)-1:
+						for k in range(last_i,len(coordinates)):
+							indices_to_remove.append(k)
+							print 'on enleve',k
+						dist=min_dist+1
+						i=k #quits the loop
+					else:
+						indices_to_remove.append(j)
+						print 'point',j,'is removed'
+						dist=math.sqrt((coordinates[j+1][0]-coordinates[i][0])**2
+							+(coordinates[j+1][1]-coordinates[i][1])**2
+							+(coordinates[j+1][2]-coordinates[i][2])**2)
+						if dist>min_dist:
+								i=j+1
+								last_i=i
+
+		indices_to_keep=[i for i,x in enumerate(coordinates) if i not in indices_to_remove]
+		new_coord=[x for i,x in enumerate(coordinates) if i in indices_to_keep]
+		D=[]
+		for i in range(0,len(new_coord)-1):
+			dist=math.sqrt((new_coord[i+1][0]-new_coord[i][0])**2
 					+(new_coord[i+1][1]-new_coord[i][1])**2
 					+(new_coord[i+1][2]-new_coord[i][2])**2)
-				new_D[i]=dist
-			new_indices=[i for i,x in enumerate(new_D) if new_D[i]>min_dist]
-			distance_checked_coord=[x for i,x in enumerate(new_coord) if i in new_indices]
-			#Appends our last coord:
-			distance_checked_coord.append(new_coord[-1])
-			new_indices.append(len(new_coord)-1)
-			new_coord=distance_checked_coord
-			count+=1
-			if count==1000: #the system exits if after 1000 iteration the points are still too close for fisnar
-				print 'the distance check results in points being too close after 1000 iterations'
-				sys.exit(1)	
-		return new_coord,new_indices,new_D
+			D.append(dist)
+		print 'minimal distance=',min(D)
+		if dist<min_dist:
+			print dist,'distance chek failed : points too close'
+
+		return new_coord,indices_to_keep
 
 	def modG(self,G,sublayers,end_index,indices_to_keep):
 		'''modifies the G status from the Gcode to match the Fishnar G status'''  
@@ -141,22 +174,23 @@ class Gen():
 
 		return mod_G
 
-	def status(self,mod_G):
+	def status(self,T_brut,indices_to_keep):
 		'''generates the fishnar multimaterial printing status'''
 		status=[]
-		for i in range(0,len(mod_G)):
+		T=[x for i,x in enumerate(T_brut) if i in indices_to_keep]
+		for i in range(0,len(T)):
 			if i==0: #first point printed
 				status.append('MultiCPStartPoint')
-			elif i==len(mod_G)-1: #last point printed
+			elif i==len(T)-1: #last point printed
 				status.append('MultiCPEndPoint')
-			elif (mod_G[i]=='G1' and mod_G[i+1]=='G0')|(mod_G[i]=='G0' and mod_G[i+1]=='G1'):
+			elif (T[i]=='T1' and T[i+1]=='T0')|(T[i]=='T0' and T[i+1]=='T1'):
 				status.append('MultiCPEndPoint')
-			elif mod_G[i]=='G1':
+			elif T[i]=='T0':
 				status.append('D01LinePassing')
-			elif mod_G[i]=='G0':
+			elif T[i]=='T1':
 				status.append('D02LinePassing')
-		# add Start point if we find and end point inside the G-CODE:
-		for i in range(1,len(mod_G)-2):
+		# a start point always follows an endPoint inside the G-CODE:
+		for i in range(1,len(T)-2):
 			if status[i]=='MultiCPEndPoint':
 				status[i+1]='MultiCPStartPoint'
 

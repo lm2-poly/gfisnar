@@ -12,7 +12,7 @@ class extract():
             self.G=extract.G(self,gcode,self.start_index,self.end_index)
             self.sublayers=extract.sublayers(self,gcode,self.start_index,self.end_index)
             self.X=extract.X(self,gcode,self.start_index,self.end_index)
-
+            self.T=extract.extruder(self,gcode,self.start_index,self.end_index)
 
             self.deck={'X':self.X,
             'Y':self.Y,
@@ -20,7 +20,8 @@ class extract():
             'G':self.G,
             'sublayers':self.sublayers,
             'end_index':self.end_index,
-            'start_index':self.start_index}
+            'start_index':self.start_index,
+            'T':self.T}
 
         def start(self,gcode):
             pattern=re.compile(r';\slayer\s1,')#pattern:; layer end
@@ -36,7 +37,7 @@ class extract():
             X=pattern.finditer(gcode[start_index:end_index])
             indices=[]
             for x in X:
-        	indices.append(x.start())
+        	indices.append(x.start()+start_index)
             return Xmatches,indices	
 		
         def Y(self,gcode,start_index,end_index):
@@ -46,7 +47,7 @@ class extract():
             Y=pattern.finditer(gcode[start_index:end_index])
             indices=[]
             for y in Y:
-        	indices.append(y.start())
+        	indices.append(y.start()+start_index)
             return Ymatches,indices	
         
 
@@ -57,7 +58,7 @@ class extract():
             Layers= pattern.finditer(gcode[start_index:end_index])
             indices=[]
             for layers in Layers:
-            	indices.append(layers.start())
+            	indices.append(layers.start()+start_index)
             return matchesZ,indices	
 
         def G(self,gcode,start_index,end_index):
@@ -67,7 +68,7 @@ class extract():
             G=pattern.finditer(gcode[start_index:end_index])
             indices=[]
             for g in G:
-        	   indices.append(g.start())
+        	   indices.append(g.start()+start_index)
             return Gmatches,indices	
 
         def sublayers(self,gcode,start_index,end_index):
@@ -78,8 +79,18 @@ class extract():
             sublayers= pattern.finditer(gcode[start_index:end_index])
             indices=[]
             for layers in sublayers:
-        	   indices.append(layers.start())
+        	   indices.append(layers.start()+start_index)
             return matches,indices
+
+        def extruder(self,gcode,start_index,end_index):
+            pattern=re.compile(r'\bT\d') #pattern: G1 X121.230
+           #only returns the first group (G\d+)
+            matches=pattern.findall(gcode[start_index:end_index])
+            extruder=pattern.finditer(gcode[start_index:end_index])
+            indices=[]
+            for T in extruder:
+               indices.append(T.start()+start_index)
+            return matches,indices 
 
         def end(self,gcode):
             pattern=re.compile(r';\slayer\send')#pattern:; layer end

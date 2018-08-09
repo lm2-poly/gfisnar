@@ -7,8 +7,11 @@ gcode=Gcode.read(yaml.gcodepath)
 extract=extract(gcode)  
 #-----------------------------GENERATE-----------------------------------------
 generate= Gen(extract.deck,yaml.deck)
+a=extract.deck
+b=generate.deck
 #-----------------------------CALIBRATE----------------------------------------
 calibrate=Calibrate(generate.deck,yaml.deck)
 #-----------------------------WRITE--------------------------------------------
 writer=write(generate.deck,calibrate.coord)
+coord=calibrate.coord
 
