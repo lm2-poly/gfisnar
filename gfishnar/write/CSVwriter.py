@@ -6,14 +6,14 @@ class write():
 	def __init__(self,generated_deck,calibrated_coord):
 
 		self.assembled=write.assembly(self,generated_deck['status'],calibrated_coord,
-			generated_deck['rotation'],generated_deck['Speed'])
+			generated_deck['IO'],generated_deck['rotation'],generated_deck['Speed'])
 
 		myFile = open('output.csv', 'w')
 		with myFile:
     			writer = csv.writer(myFile)
     			writer.writerows(self.assembled)
 
-	def assembly(self,status,calibrated_coord,rotation,speed):
+	def assembly(self,status,calibrated_coord,IO,rotation,speed):
 		X=[]
 		Y=[]
 		Z=[]
@@ -28,6 +28,7 @@ class write():
 		list_of_lists.append(X)
 		list_of_lists.append(Y)
 		list_of_lists.append(Z)
+		list_of_lists.append(IO)
 		list_of_lists.append(rotation)
 		list_of_lists.append(speed)
 		return list_of_lists

@@ -19,12 +19,13 @@ class Gen():
 
 		self.fisnar_status=Gen.status(self,self.T,self.indices_to_keep)
 
-		self.speed=Gen.speed(self,self.mod_G,self.distance_checked_coord,
-			yaml_deck['travel_speed'],yaml_deck['print_speed'])[0]
+		self.IO=Gen.IO(self,deck['X'],deck['E'],self.indices_to_keep)
 
-		self.mod_G_to_keep=Gen.speed(self,self.mod_G,self.distance_checked_coord,
-			yaml_deck['travel_speed'],yaml_deck['print_speed'])[1]
+		self.speed=Gen.speed(self,self.mod_G,
+			yaml_deck['travel_speed'],yaml_deck['print_speed'],self.IO)[0]
 
+		self.mod_G_to_keep=Gen.speed(self,self.mod_G,
+			yaml_deck['travel_speed'],yaml_deck['print_speed'],self.IO)[1]
 		
 		self.rotation=Gen.rotation(self,self.distance_checked_coord,yaml_deck['rotation_angle'])
 
@@ -35,6 +36,7 @@ class Gen():
 		,'Speed':self.speed
 		,'rotation':self.rotation
 		,'extruder':self.T
+		,'IO':self.IO
 	}
 
 	def Zcoord(self,X,Y,layers,end_index):
@@ -196,10 +198,23 @@ class Gen():
 
 		return status
 
-	def speed(self,mod_G,distance_checked_coord,travel_speed,print_speed):
+	def IO(self,X,E,indices_to_keep):
+		j=0
+		IO=[0]*len(X[1])
+		for i in range(0,len(X[1])-1):
+			if X[1][i]<E[1][j]<X[1][i+1]:
+				IO[i]=1
+				j+=1
+			else:
+				IO[i]=0
+		IO=[x for i,x in enumerate(IO) if i in indices_to_keep]
+		return IO
+
+
+	def speed(self,mod_G,travel_speed,print_speed,IO):
 		speed=[]
-		for i in range(0,len(mod_G)):
-			if mod_G[i]=='G0':
+		for i in range(0,len(IO)):
+			if IO[i]==0:
 				speed.append(travel_speed)
 			else:
 				speed.append(print_speed)

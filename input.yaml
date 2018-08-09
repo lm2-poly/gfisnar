@@ -2,7 +2,7 @@ InputFile:
     Path: "screwable.gcode"
 
 Minimal print distance:
-    D: 0.1
+    D: 0.8
 
 Initial position:
     X: 60
