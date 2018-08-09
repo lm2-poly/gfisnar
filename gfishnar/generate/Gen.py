@@ -58,40 +58,51 @@ class Gen():
 		return zip(XCor,YCor,ZCor)
 
 	def DistanceCheck(self,coordinates,min_dist):
-		''' calculates the distance between consecutive points in the G-code'''
-		D=[]
+		i=0
+		indices_to_remove=[]
+		while i<(len(coordinates)-1):
 
-		for i in range(0,len(coordinates)-1):
 			dist=math.sqrt((coordinates[i+1][0]-coordinates[i][0])**2
-				+(coordinates[i+1][1]-coordinates[i][1])**2
-				+(coordinates[i+1][2]-coordinates[i][2])**2)
-			D.append(dist)
-		indices_to_keep=[i for i,x in enumerate(D) if D[i]>min_dist]
-		distance_checked_coord=[x for i,x in enumerate(coordinates) if i in indices_to_keep]
-		#Appends our last coord:
-		distance_checked_coord.append(coordinates[-1])
-		indices_to_keep.append(len(coordinates)-1)
- 		#While the distance is inferior the set minimal distance, points will be refined:
-		new_coord=distance_checked_coord
-		new_D=[0]*(len(new_coord)-1)
-		count=0
-		while min(new_D)<min_dist:	
-			for i in range(0,len(new_coord)-1):
-				dist=math.sqrt((new_coord[i+1][0]-new_coord[i][0])**2
+					+(coordinates[i+1][1]-coordinates[i][1])**2
+					+(coordinates[i+1][2]-coordinates[i][2])**2)
+			j=i
+			print 'premier calcul dist=',dist
+			print'i=j=',i
+			if dist>min_dist:
+				i=i+1
+				last_i=i
+			else:
+				while dist<min_dist:
+					j=j+1
+					print'entre dans while j=',j
+					if j+1>=len(coordinates)-1:
+						for k in range(last_i,len(coordinates)):
+							indices_to_remove.append(k)
+							print 'on enleve',k
+						dist=min_dist+1
+						i=k #quits the loop
+					else:
+						indices_to_remove.append(j)
+						dist=math.sqrt((coordinates[j+1][0]-coordinates[i][0])**2
+							+(coordinates[j+1][1]-coordinates[i][1])**2
+							+(coordinates[j+1][2]-coordinates[i][2])**2)
+						if dist>min_dist:
+								i=j+1
+								last_i=i
+
+		indices_to_keep=[i for i,x in enumerate(coordinates) if i not in indices_to_remove]
+		new_coord=[x for i,x in enumerate(coordinates) if i in indices_to_keep]
+		D=[]
+		for i in range(0,len(new_coord)-1):
+			dist=math.sqrt((new_coord[i+1][0]-new_coord[i][0])**2
 					+(new_coord[i+1][1]-new_coord[i][1])**2
 					+(new_coord[i+1][2]-new_coord[i][2])**2)
-				new_D[i]=dist
-			new_indices=[i for i,x in enumerate(new_D) if new_D[i]>min_dist]
-			distance_checked_coord=[x for i,x in enumerate(new_coord) if i in new_indices]
-			#Appends our last coord:
-			distance_checked_coord.append(new_coord[-1])
-			new_indices.append(len(new_coord)-1)
-			new_coord=distance_checked_coord
-			count+=1
-			if count==1000: #the system exits if after 1000 iteration the points are still too close for fisnar
-				print 'the distance check results in points being too close after 1000 iterations'
-				sys.exit(1)	
-		return new_coord,new_indices,new_D
+			D.append(dist)
+		print 'minimal distance=',min(D)
+		if dist<min_dist:
+			print dist,'erreur distance trop petite'
+
+		return new_coord,indices_to_keep
 
 	def modG(self,G,sublayers,end_index,indices_to_keep):
 		'''modifies the G status from the Gcode to match the Fishnar G status'''  
