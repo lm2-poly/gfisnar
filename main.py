@@ -1,3 +1,5 @@
+#-*- coding: utf-8 -*-
+#@author: soufiane.hifdi@polyml.ca
 from gfishnar import *
 #------------------------------READ--------------------------------------------
 yaml = YAML("input.yaml")
@@ -11,4 +13,5 @@ generate= Gen(extract.deck,yaml.deck)
 calibrate=Calibrate(generate.deck,yaml.deck)
 #-----------------------------WRITE--------------------------------------------
 writer=write(generate.deck,calibrate.coord)
+print 'output.csv file has been created in the current directory'
 

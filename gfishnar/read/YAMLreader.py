@@ -1,11 +1,16 @@
-  # -*- coding: utf-8 -*-
+#-*- coding: utf-8 -*-
+#@author: soufiane.hifdi@polyml.ca
+
 import yaml
 import os.path
 import sys
 
-
+## Class reading and storing the inputs of the user in the input.yaml
 class YAML():
 
+    ## Constructor
+    # Reads the input.yaml file, assigns to each tag it's value and gives error messages to the user in case of misuse
+    # @param inputFile The folder path of the input.yaml file
     def __init__(self, inputFile):
 
             if not os.path.exists(inputFile):
@@ -14,9 +19,10 @@ class YAML():
             else:
                 with open(inputFile,'r') as f:
 
-                    self.doc = yaml.load(f) # Container of the tags parsed from the yaml file
+                    ## Container of the tags parsed from the yaml file
+                    self.doc = yaml.load(f) 
 
-                    #Input file section :
+                    # Reads the Input file section :
 
                     if not "InputFile" in self.doc:
                         print "Error: Specify an InputFile section in your yaml"
@@ -26,10 +32,10 @@ class YAML():
                             print "Error: Specify Path tag in InputFile section"
                             sys.exit(1)
                         else:
-                            self.gcodepath = self.doc["InputFile"]["Path"] #gcodepath attribute contains the 
-                            #specified gcode path
+                            ## Path of the gcode file to modify
+                            self.gcodepath = self.doc["InputFile"]["Path"] 
 
-                    #Minimal print distance section :
+                    # Reads the Minimal print distance section :
 
                     if not "Minimal print distance" in self.doc:
                         print "Error: Specify a Minimal print distance section in your yaml"
@@ -42,9 +48,10 @@ class YAML():
                             print 'error: D tag in Minimal print distance section is empty'
                             sys.exit(1)
                         else:
+                            ## Mininal distance specified in the yaml
                             self.dist_min = self.doc["Minimal print distance"]["D"] 
 
-                    #Initial poistion section :
+                    # Reads the Initial poistion section :
 
                     if not "Initial position" in self.doc:
                         print "Error: Specify an Initial position section in your yaml"
@@ -69,11 +76,14 @@ class YAML():
                             print 'error: Z tag in Initial position section is empty'
                             sys.exit(1)
                         else:
+                            ## initial X poisition of the start point 
                             self.X = self.doc["Initial position"]["X"] 
+                            ## initial Y poisition of the start point 
                             self.Y = self.doc["Initial position"]["Y"]
+                            ## initial Z poisition of the start point
                             self.Z = self.doc["Initial position"]["Z"]
 
-                    #Speed section :
+                    # Reads the Speed section :
 
                     if not "Speed" in self.doc:
                         print "Error: Specify a speed section in your yaml"
@@ -92,10 +102,12 @@ class YAML():
                             print 'error: Travel speed tag in Speed section is empty'
                             sys.exit(1)
                         else:
+                            ## Print speed (if extrusion of ink takes place)
                             self.print_speed = self.doc["Speed"]["Print speed"] 
+                            ## Travel speed 
                             self.travel_speed = self.doc["Speed"]["Travel speed"]
 
-                    # Translation between dispensers section :
+                    # Reads the Translation between dispensers section :
 
                     if not "Translation between dispensers" in self.doc:
                         print "Error: Specify an Translation between dispensers section in your yaml"
@@ -115,10 +127,12 @@ class YAML():
                             print 'error: Y tag in Translation between dispensers section is empty'
                             sys.exit(1)
                         else:
+                            ## X coordinate distance between the dispensers
                             self.X_trans = self.doc["Translation between dispensers"]["X"] 
+                            ## Y coordinate distance between the dispensers
                             self.Y_trans = self.doc["Translation between dispensers"]["Y"]
 
-                    # Rotation angle section :
+                    # Reads the Rotation angle section :
 
                     if not "Rotation angle" in self.doc:
                         print "Error: Specify a Rotation angle section in your yaml"
@@ -131,10 +145,10 @@ class YAML():
                             print 'error: R tag in Rotation angle section is empty'
                             sys.exit(1)
                         else:
+                            ## Angle of rotation of the Fisnar
                             self.rotation = self.doc["Rotation angle"]["R"]
 
-                    #Construction of the class YAML deck:
-
+                    ## Deck of the YAML class
                     self.deck={'X_init':self.X,
                     'Y_init':self.Y,
                     'Z_init':self.Z,
