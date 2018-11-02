@@ -1,5 +1,5 @@
 InputFile:
-    Path: "Cylinder.gcode"
+    Path: "screwable.gcode"
 
 Minimal print distance:
     D: 0.8
@@ -14,8 +14,10 @@ Translation between dispensers:
     Y: 45.5
 
 Speed:
-    Print speed: 10
-    Travel speed: 20
+    Print speed: 5
+    Travel speed: 12
 
 Rotation angle:
-    R: 0
+    R: 2
+
+

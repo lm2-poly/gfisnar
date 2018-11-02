@@ -1,10 +1,2 @@
-yaml
-
-
-
-re
-
-
-math
-
-csv
+pyyaml
+regex
