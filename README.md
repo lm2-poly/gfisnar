@@ -1,4 +1,5 @@
 This code is designed to transform a .gcode file obtained from a FDM 3D printer slicer to the format required by Fisnar.
+The code can also support multimaterial 3D-printing using a Fisnar dispenser with a custom 3D printed head for the fisnar. Please note that this code cannot support more than 3 materials.
 
 # Ubuntu users
 
@@ -31,4 +32,8 @@ The parameters in the file:
 * `InputFile / Path` : Path of the .gcode input file
 
 * `Minimal print distance / D` : Smallest acceptable distance between two points for the fisnar machine
+
+# Current limitation
+
+The code is limited to 3 materials for multimaterial printing.
 

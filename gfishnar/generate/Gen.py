@@ -233,12 +233,18 @@ class Gen():
 				status.append('MultiCPEndPoint')
 			elif (T[i]=='T1' and T[i+1]=='T0')|(T[i]=='T0' and T[i+1]=='T1'):
 				status.append('MultiCPEndPoint')
+			elif (T[i]=='T1' and T[i+1]=='T2')|(T[i]=='T2' and T[i+1]=='T1'):
+				status.append('MultiCPEndPoint')
+			elif (T[i]=='T2' and T[i+1]=='T0')|(T[i]=='T0' and T[i+1]=='T2'):
+				status.append('MultiCPEndPoint')
 			elif T[i]=='T0':
 				status.append('D01LinePassing')
 			elif T[i]=='T1':
 				status.append('D02LinePassing')
+			elif T[i]=='T2':
+				status.append('D03LinePassing')
 
-		for i in range(1,len(T)-2):
+		for i in range(0,len(T)-1):
 			if status[i]=='MultiCPEndPoint':
 				status[i+1]='MultiCPStartPoint'
 
