@@ -1,5 +1,8 @@
 #-*- coding: utf-8 -*-
 #@author: soufiane.hifdi@polyml.ca
+#@author: ilyass.tabiai@gmail.com
+
+
 from gfishnar import *
 #------------------------------READ--------------------------------------------
 yaml = YAML("input.yaml")
