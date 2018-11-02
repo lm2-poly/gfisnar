@@ -1,6 +1,8 @@
 This code is designed to transform a .gcode file obtained from a FDM 3D printer slicer to the format required by Fisnar.
 The code can also support multimaterial 3D-printing using a Fisnar dispenser with a custom 3D printed head for the fisnar. Please note that this code cannot support more than 3 materials.
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1444066.svg)](https://doi.org/10.5281/zenodo.1444066)
+
 Authors: soufiane.hifdi@polyml.ca, ilyass.tabiai@gmail.com
 
 # Ubuntu users
@@ -39,3 +41,12 @@ The parameters in the file:
 
 The code is limited to 3 materials for multimaterial printing.
 
+# Cite this work
+
+DOI: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1444066.svg)](https://doi.org/10.5281/zenodo.1444066)
+
+Github hosts the work on development, please use the Zenodo package associated with this code if you would like to cite it: https://zenodo.org/record/1444066
+
+```
+SoufianeHifdi, & Ilyass Tabiai. (2018, October 3). lm2-poly/gfisnar: Functional Fox (Version 0.1f). Zenodo. http://doi.org/10.5281/zenodo.1444066
+```
