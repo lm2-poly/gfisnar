@@ -14,10 +14,37 @@ class write():
 		self.assembled=write.assembly(self,generated_deck['status'],calibrated_coord,
 			generated_deck['IO'],generated_deck['rotation'],generated_deck['Speed'])
 
-		myFile = open('output.csv', 'w')
-		with myFile:
-    			writer = csv.writer(myFile)
-    			writer.writerows(self.assembled)
+		# Excel cannot handle CSV files with more than 16382 columns
+		# We are going to break down our results into files that each have less than 16382 columns
+		# These files can then be opened separately and copy pasted into the fisnar software
+		# We will generate outputs of 16000 columns at most
+
+		xl_max = 16
+		excel_limit = len(self.assembled[0])//xl_max
+		print "Length of Gcode: ", len(self.assembled[0])
+		print "Excel limit: ", xl_max
+		print "Due to Excel limit, file has to be divided into ", excel_limit
+		if excel_limit != 0:
+			print "IMPORTANT: Due to Excel's limitations, your output will be divided into", excel_limit+1, " files."
+			for i in range(1, excel_limit+1):
+				fileName = "output"+str(i+1)+"-"+str(excel_limit+1)+".csv"
+				
+				assembled_trunked = []
+				for j in range(0, len(self.assembled)-1):
+					if j == len(self.assembled)-1:
+						assembled_trunked.append(self.assembled[j][i*xl_max-xl_max: len(self.assembled)-1])
+					else:
+						assembled_trunked.append(self.assembled[j][i*xl_max-xl_max: i*xl_max-1])
+
+				myFile = open(fileName, 'w')
+				with myFile:
+					writer = csv.writer(myFile)
+					writer.writerows(assembled_trunked)
+		else:
+			myFile = open('output.csv', 'w')
+			with myFile:
+				writer = csv.writer(myFile)
+				writer.writerows(self.assembled)
 
     ## Assembles all the data and modifies their structure to match the CSV writer structure
     # @param status Multimaterial printing status of the Fisnar, from the Gen class deck
