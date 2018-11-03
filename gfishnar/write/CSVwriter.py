@@ -19,16 +19,15 @@ class write():
 		# These files can then be opened separately and copy pasted into the fisnar software
 		# We will generate outputs of 16000 columns at most
 
-		xl_max = 16
+		xl_max = 16000
 		excel_limit = len(self.assembled[0])//xl_max
 		print "Length of Gcode: ", len(self.assembled[0])
 		print "Excel limit: ", xl_max
-		print "Due to Excel limit, file has to be divided into ", excel_limit
 		if excel_limit != 0:
 			print "IMPORTANT: Due to Excel's limitations, your output will be divided into", excel_limit+1, " files."
-			for i in range(1, excel_limit+1):
-				fileName = "output"+str(i+1)+"-"+str(excel_limit+1)+".csv"
-				
+			for i in range(1, excel_limit+2):
+				fileName = "output"+str(i)+"-"+str(excel_limit+1)+".csv"
+				print "Currently treating file ", fileName
 				assembled_trunked = []
 				for j in range(0, len(self.assembled)-1):
 					if j == len(self.assembled)-1:
