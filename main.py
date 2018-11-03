@@ -1,6 +1,7 @@
 #-*- coding: utf-8 -*-
 #@author: soufiane.hifdi@polyml.ca
 #@author: ilyass.tabiai@gmail.com
+#@author: yahya.abderrafai@gmail.com
 
 
 from gfishnar import *
@@ -16,5 +17,6 @@ generate= Gen(extract.deck,yaml.deck)
 calibrate=Calibrate(generate.deck,yaml.deck)
 #-----------------------------WRITE--------------------------------------------
 writer=write(generate.deck,calibrate.coord)
-print 'output.csv file has been created in the current directory'
+print 'Output file(s) is now available in the current directory'
+print 'Import it into Excel, then copy-paste the content in the Fisnar software'
 

@@ -1,5 +1,5 @@
 InputFile:
-    Path: "Cylinder.gcode"
+    Path: "cube.gcode"
 
 Minimal print distance:
     D: 0.8
