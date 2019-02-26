@@ -26,7 +26,7 @@ class Gen():
 		## Modified G status, adapted for the fisnar
 		self.mod_G=Gen.modG(self,deck['G'],deck['sublayers'],deck['end_index'],self.indices_to_keep)
 
-		## Extruder in use for every point 
+		## Extruder in use for every point
 		self.T=Gen.T(self,deck['X'],deck['Y'],deck['T'],deck['end_index'],self.indices_to_keep)
 
 		## Mutlimaterial Fisnar status
@@ -41,7 +41,7 @@ class Gen():
 
 		self.mod_G_to_keep=Gen.speed(self,self.mod_G,
 			yaml_deck['travel_speed'],yaml_deck['print_speed'],self.IO)[1]
-		
+
 		## Angle of rotation
 		self.rotation=Gen.rotation(self,self.distance_checked_coord,yaml_deck['rotation_angle'])
 
@@ -56,7 +56,9 @@ class Gen():
 		,'IO':self.IO
 	}
 
-	##  Appends the Z coordinate to every point 
+
+
+	##  Appends the Z coordinate to every point
     # @param X X coordinates from the extract class deck
     # @param Y Y coordinates from the extract class deck
     # @param end_index End index from the extract class deck
@@ -76,7 +78,7 @@ class Gen():
 			print 'Y and Z coordinates does not match'
 		return Z
 
-	##  appends the extruder in use T0 or T1 to every point 
+	##  appends the extruder in use T0 or T1 to every point
     # @param X X coordinates from the extract class deck
     # @param Y Y coordinates from the extract class deck
     # @param end_index End index from the extract class deck
@@ -101,7 +103,7 @@ class Gen():
 
 		return T_to_keep
 
-	## Groups the X,Y,Z in a tuple 
+	## Groups the X,Y,Z in a tuple
     # @param X X coordinates from the extract class deck
     # @param Y Y coordinates from the extract class deck
     # @param Y Z coordinates from the Zcoord method
@@ -131,7 +133,7 @@ class Gen():
 				# Last satifactory distance
 				last_i=i
 			else:
-				# While the distance is inferior than the minimal distance, removes the point and checks the distance again  
+				# While the distance is inferior than the minimal distance, removes the point and checks the distance again
 				while dist<min_dist:
 					j=j+1
 					# If the last distance is inferior than the minimal distance, remove all the points past the last satisfactory distance
@@ -140,7 +142,7 @@ class Gen():
 							indices_to_remove.append(k)
 						# Quits the loop
 						dist=min_dist+1
-						i=k 
+						i=k
 					else:
 						indices_to_remove.append(j)
 						dist=math.sqrt((coordinates[j+1][0]-coordinates[i][0])**2
@@ -170,6 +172,7 @@ class Gen():
 
 		return new_coord,indices_to_keep
 
+
 	## Modifies the G status from the Gcode to match the status of the fisnar
     # @param sublayers Sublayers printed, from the extract class deck
     # @param end_index End index of the gcode from the extract class deck
@@ -185,7 +188,7 @@ class Gen():
 		# Finds the end Gcode indicies of the sublayers to modify:
 		limit2= [x for i,x in enumerate(sublayers[1]) if i in indices_end]
 		# If there is no 'support' the list indices will be empty:
-		mod_G=list(G[0]) 
+		mod_G=list(G[0])
 		if len(indices_in_sublayer)==0:
 			mod_G= mod_G
 		else:
@@ -222,14 +225,14 @@ class Gen():
 
 		return mod_G
 
-    ## Generates the fishnar multimaterial printing status 
+    ## Generates the fishnar multimaterial printing status
     # @param T Extruder in use for every point, from the extract class deck
 	def status(self,T):
 		status=[]
 		for i in range(0,len(T)):
 			if i==0:
 				status.append('MultiCPStartPoint')
-			elif i==len(T)-1: 
+			elif i==len(T)-1:
 				status.append('MultiCPEndPoint')
 			elif (T[i]=='T1' and T[i+1]=='T0')|(T[i]=='T0' and T[i+1]=='T1'):
 				status.append('MultiCPEndPoint')
@@ -269,7 +272,7 @@ class Gen():
 		return IO
 
 	## Generates the speed for every point
-	# @param mod_G Modified G status given by the mod_G function 
+	# @param mod_G Modified G status given by the mod_G function
 	# @param travel_speed Travel speed from the YAML deck
     # @param print_speed Print speed from the YALM deck
     # @param IO IO, extrusion status given by the IO method
@@ -285,13 +288,8 @@ class Gen():
 		return speed,mod_G
 
 	## Generates the speed for every point
-	# @param Coord_to_keep distance checked coordinates as given by the distance check method 
+	# @param Coord_to_keep distance checked coordinates as given by the distance check method
 	# @param angle Rotation angle from the YAML deck
 	def rotation(self,Coord_to_keep,angle):
 		Rotation=[angle]*len(Coord_to_keep)
 		return Rotation
-
-
-
-
-

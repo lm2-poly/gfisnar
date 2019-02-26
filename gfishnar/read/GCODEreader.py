@@ -6,6 +6,7 @@ class Gcode():
 
 	## Method that reads the gcode file and returns it as a python string
 	# @param  Gcodepath Path of the gcode given in the input.YAML
+
     def read(self,Gcodepath):
         f = open(Gcodepath, 'r')
         Gcode = f.read()
