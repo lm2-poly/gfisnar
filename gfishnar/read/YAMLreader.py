@@ -20,7 +20,7 @@ class YAML():
                 with open(inputFile,'r') as f:
 
                     ## Container of the tags parsed from the yaml file
-                    self.doc = yaml.load(f) 
+                    self.doc = yaml.load(f)
 
                     # Reads the Input file section :
 
@@ -33,7 +33,7 @@ class YAML():
                             sys.exit(1)
                         else:
                             ## Path of the gcode file to modify
-                            self.gcodepath = self.doc["InputFile"]["Path"] 
+                            self.gcodepath = self.doc["InputFile"]["Path"]
 
                     # Reads the Minimal print distance section :
 
@@ -49,7 +49,7 @@ class YAML():
                             sys.exit(1)
                         else:
                             ## Mininal distance specified in the yaml
-                            self.dist_min = self.doc["Minimal print distance"]["D"] 
+                            self.dist_min = self.doc["Minimal print distance"]["D"]
 
                     # Reads the Initial poistion section :
 
@@ -76,9 +76,9 @@ class YAML():
                             print 'error: Z tag in Initial position section is empty'
                             sys.exit(1)
                         else:
-                            ## initial X poisition of the start point 
-                            self.X = self.doc["Initial position"]["X"] 
-                            ## initial Y poisition of the start point 
+                            ## initial X poisition of the start point
+                            self.X = self.doc["Initial position"]["X"]
+                            ## initial Y poisition of the start point
                             self.Y = self.doc["Initial position"]["Y"]
                             ## initial Z poisition of the start point
                             self.Z = self.doc["Initial position"]["Z"]
@@ -103,8 +103,8 @@ class YAML():
                             sys.exit(1)
                         else:
                             ## Print speed (if extrusion of ink takes place)
-                            self.print_speed = self.doc["Speed"]["Print speed"] 
-                            ## Travel speed 
+                            self.print_speed = self.doc["Speed"]["Print speed"]
+                            ## Travel speed
                             self.travel_speed = self.doc["Speed"]["Travel speed"]
 
                     # Reads the Translation between dispensers section :
@@ -119,7 +119,7 @@ class YAML():
                         elif not "Y" in self.doc["Translation between dispensers"]:
                             print "Error: No Y tag found in Translation between dispensers section"
                             sys.exit(1)
-                        
+
                         elif self.doc["Translation between dispensers"]["X"]==None:
                             print 'error: X tag in Translation between dispensers section is empty'
                             sys.exit(1)
@@ -128,7 +128,7 @@ class YAML():
                             sys.exit(1)
                         else:
                             ## X coordinate distance between the dispensers
-                            self.X_trans = self.doc["Translation between dispensers"]["X"] 
+                            self.X_trans = self.doc["Translation between dispensers"]["X"]
                             ## Y coordinate distance between the dispensers
                             self.Y_trans = self.doc["Translation between dispensers"]["Y"]
 
@@ -148,6 +148,33 @@ class YAML():
                             ## Angle of rotation of the Fisnar
                             self.rotation = self.doc["Rotation angle"]["R"]
 
+                    # Reads the Curved toolpath section :
+
+                    if not "Curved toolpath" in self.doc:
+                        print "Error: Specify a curved toolpath section in your yaml"
+                        sys.exit(1)
+                    else:
+                        if not "Curved" in self.doc["Curved toolpath"]:
+                            print "Error: Specify Curved tag in Curved toolpath section"
+                            sys.exit(1)
+                        elif self.doc["Curved toolpath"]["Curved"]==None:
+                            print 'error: Curved tag in Curved toolpath section is empty'
+                            sys.exit(1)
+                        else:
+                            self.curved = self.doc["Curved toolpath"]["Curved"]
+                            if self.doc["Curved toolpath"]["Curved"] == True:
+                                if not "Curvature radius" in self.doc["Curved toolpath"]:
+                                    print "Error: Specify Curvature radius tag in Curved toolpath section"
+                                    sys.exit(1)
+                                elif self.doc["Curved toolpath"]["Curvature radius"]==None:
+                                    print 'error: Curvature radius tag in Curved toolpath section is empty'
+                                    sys.exit(1)
+                                else:
+                                    self.curvature_radius = self.doc["Curved toolpath"]["Curvature radius"]
+                            else:
+                                self.curvature_radius = None
+
+
                     ## Deck of the YAML class
                     self.deck={'X_init':self.X,
                     'Y_init':self.Y,
@@ -157,4 +184,6 @@ class YAML():
                     'X_trans':self.X_trans,
                     'Y_trans':self.Y_trans,
                     'dist_min':self.dist_min,
-                    'rotation_angle':self.rotation}
+                    'rotation_angle':self.rotation,
+                    'curved':self.curved,
+                    'curvature_radius':self.curvature_radius}

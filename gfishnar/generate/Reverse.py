@@ -1,7 +1,7 @@
 #-*- coding: utf-8 -*-
 #@author: aziz-yamar.gueye@polyml.ca
 
-from gfishnar.generate import *
+from .Gen import *
 
 
 ## Class to reverse transform the toolpath in order to obtain a curved toolpath
@@ -15,8 +15,7 @@ class Reverse(Gen):
 		## X Y Z coordinates for each line of Gcode and the index of the beginning of the line
 		self.points = Reverse.points(self,deck['X'],deck['Y'],deck['layers'])
 
-		self.R = 600
-		R = self.R
+		self.R = yaml_deck['curvature_radius']
 
 		## New X Y Z  coordinates for the curved toolpath
 		self.new_points = Reverse.new_points(self,self.points,self.R)
@@ -112,7 +111,7 @@ class Reverse(Gen):
 
 				new_e = round(( (new_dist * (e[0] -E[i-1][0]) / dist) + E[i-1][0]),4)
 				new_E.append([new_e , e[1]])
-				
+
 		return new_E
 
 	def regenerate(self,deck,yaml_deck,new_points,new_E):

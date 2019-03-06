@@ -10,7 +10,7 @@ Initial position:
     Z: 40
 
 Translation between dispensers:
-    X: 45 
+    X: 45
     Y: 45.5
 
 Speed:
@@ -19,3 +19,7 @@ Speed:
 
 Rotation angle:
     R: 0
+
+Curved toolpath:
+    Curved: True
+    Curvature radius: 600
