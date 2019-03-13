@@ -171,7 +171,17 @@ class YAML():
                                     sys.exit(1)
                                 else:
                                     self.curvature_radius = self.doc["Curved toolpath"]["Curvature radius"]
+
+                                if not "Interpolation precision" in self.doc["Curved toolpath"]:
+                                    print "Error: Specify Interpolation precision tag in Curved toolpath section"
+                                    sys.exit(1)
+                                elif self.doc["Curved toolpath"]["Interpolation precision"]==None:
+                                    print 'error: INterpolation precision tag in Curved toolpath section is empty'
+                                    sys.exit(1)
+                                else:
+                                    self.interpolation_precision = self.doc["Curved toolpath"]["Interpolation precision"]
                             else:
+                                self.interpolation_precision = None
                                 self.curvature_radius = None
 
 
@@ -186,4 +196,5 @@ class YAML():
                     'dist_min':self.dist_min,
                     'rotation_angle':self.rotation,
                     'curved':self.curved,
-                    'curvature_radius':self.curvature_radius}
+                    'curvature_radius':self.curvature_radius,
+                    'interpolation_precision':self.interpolation_precision}

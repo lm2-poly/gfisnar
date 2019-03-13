@@ -22,4 +22,5 @@ Rotation angle:
 
 Curved toolpath:
     Curved: True
-    Curvature radius: 600
+    Curvature radius: 40
+    Interpolation precision: 0.01
