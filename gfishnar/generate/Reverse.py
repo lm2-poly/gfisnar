@@ -2,7 +2,6 @@
 #@author: aziz-yamar.gueye@polyml.ca
 
 from .Gen import *
-import pdb
 
 def distance(point1,point2):
 	## Computes and returns distance between two 3D points
@@ -23,6 +22,7 @@ def middle_point(point1,point2):
 	return middle_point
 
 ## Class to reverse transform the toolpath in order to obtain a curved toolpath
+# Mettre plus d'infos
 class Reverse(Gen):
 
 	## Constructor
@@ -78,7 +78,7 @@ class Reverse(Gen):
 		for y,i in zip(deckY[0],deckY[1]):
 			Y.append ([float(y[1:]), i])
 		for z,i in zip(deckLayers[0],deckLayers[1]):
-			Z.append ([float(z[4:]), i])
+			Z.append ([float(z[1:]), i])
 		points = []
 		for i in range (0,len(X)):
 			points.append ([ X[i][0] , Y[i][0] ])
@@ -183,15 +183,27 @@ class Reverse(Gen):
 	def final_E(self, E, points, final_points):
 		j=0
 		final_E = []
-		for e in E:
-			final_E.append(e)
 		for i in range(0,len(points)-1):
 			if points[i][3]< E[j][1] < points[i+1][3]:
-				for final_point in final_points:
-					if final_point[3]==points[i+1][3] and final_point != points[i+1]:
-						E_interpolate = [(E[j][0]-E[j-1][0])*(distance(points[i-1],final_point)/distance(points[i-1],points[i])+E[j-1][0]),E[j][1]]
-						final_E.insert(j,E_interpolate)
+				for k,final_point in enumerate(final_points):
+					if final_point[3]==points[i][3]:
+						new_dist = distance(points[i-1],final_point)
+						dist = distance(points[i-1],points[i])
+						if j ==0:
+							E_interpolate = [round((E[j][0])*(new_dist/dist),4),E[j][1]]
+						else:
+							E_interpolate = [round((E[j][0]-E[j-1][0])*(new_dist/dist)+E[j-1][0],4),E[j][1]]
+						final_E.append(E_interpolate)
 				j = j+1
+		if j < len(E):
+			if E[j][1] > points[-1][3]:
+				for k,final_point in enumerate(final_points):
+					if final_point[3]==points[-1][3]:
+						new_dist = distance(points[-2],final_point)
+						dist = distance(points[-2],points[-1])
+						E_interpolate = [round((E[j][0]-E[j-1][0])*(new_dist/dist)+E[j-1][0],4),E[j][1]]
+						final_E.append(E_interpolate)
+
 		return final_E
 
 	## Calculates the new extrusion values for reversed toolpath by conserving the extrusion per length unit in planar toolpath
@@ -202,41 +214,42 @@ class Reverse(Gen):
 	# @param final_reversed_points  The points from final_reversed_points method
 	def final_reversed_E(self, E, final_E, points, final_points,final_reversed_points):
 
-		final_reversed_E = [0]*len(final_E)
+		final_reversed_E = []
 		j=0
-		infos = []
-		for i in range(0,len(points)):
-			if points[i-1][3]<E[j][1]<points[i][3]:
-				infos.append([i,j])
-				j+=1
 
 		for i,e in enumerate(final_E):
 			for k in range(0,len(final_points)):
 				if final_points[k-1][3]< e[1] <final_points[k][3]:
 					dist=distance(final_points[k-2],final_points[k-1])
 					new_dist = distance(final_reversed_points[k-2],final_reversed_points[k-1])
-					final_reversed_e = round(((new_dist * (e[0] -final_E[i-1][0] ) / dist) + final_E[i-1][0]),4)
-					final_reversed_E[i]=[final_reversed_e , e[1]]
+					if i ==0:
+						final_reversed_e = round((e[0])*(new_dist/dist),4)
+					else:
+						final_reversed_e = round(((new_dist * (e[0] -final_E[i-1][0] ) / dist) + final_E[i-1][0]),4)
+					final_reversed_E.append([final_reversed_e , e[1]])
 					break
 
-			if  i == len(final_E)-1 : #for last point
-				dist=distance(final_points[-1],final_points[-2])
-				new_dist = distance(final_reversed_points[-1],final_reversed_points[-2])
-
-				final_reversed_e = round(( (new_dist * (e[0] -final_E[i-1][0]) / dist) + final_E[i-1][0]),4)
-				final_reversed_E[i]=([final_reversed_e , e[1]])
-
-		for k in range (0,len(final_points)): #for added interpolated points
-			if final_points[k-1][3] == final_points[k][3]:
-				for j in range(0,len(points)):
-					if points[j][3] == final_points[k][3]:
-						dist = distance(points[j-2],points[j-1])
-						new_dist = distance(points[j-2],final_reversed_points[k-1])
-						index = [t for x,t in infos if x == j]
-						if len(index) != 0:
-							final_reversed_e = round(((new_dist * (E[index[0]][0] - E[index[0]-1][0] ) / dist) + E[index[0]-1][0]),4)
-							final_reversed_E[i]=[final_reversed_e , E[index[0]][1]]
-
+		# for the last layers E
+		s= 0
+		while final_E[s][1] < final_points[-1][3]:
+			s= s+1
+			if s ==len(final_E):
+				s = s-1
+				break
+		while final_E[s][1] > final_points[-1][3]:
+			if final_points[j][3]==final_points[-1][3]:
+				new_dist = distance(final_reversed_points[j-1],final_reversed_points[j])
+				dist = distance(final_points[j-1],final_points[j])
+				E_interpolate = [round((final_E[s][0]-final_E[s-1][0])*(new_dist/dist)+final_E[s-1][0],4),final_E[s][1]]
+				final_reversed_E.append(E_interpolate)
+				j = j+1
+				if s+1 <= len(final_E)-1:
+					s = s+1
+				else:
+					break
+			else:
+				j = j+1
+		assert len(final_reversed_E)==len(final_E),"Length of final E and final reversed E dont match"
 		return final_reversed_E
 
 	## Modifies the deck from the extract class to include changes made by reverse transformation
@@ -301,6 +314,7 @@ class Reverse(Gen):
 		X = [point[0] for point in final_reversed_points]
 		Y = [point[1] for point in final_reversed_points]
 		Z = [point[2] for point in final_reversed_points]
+
 		self.coordinates = zip(X,Y,Z)
 
 		## Coordinates of the points that passed the distance check calculation
@@ -313,7 +327,7 @@ class Reverse(Gen):
 		self.mod_G=Gen.modG(self,deck['G'],deck['sublayers'],deck['end_index'],self.indices_to_keep)
 
 		## Extruder in use for every point
-		self.T=Gen.T(self,deck['X'],deck['Y'],deck['T'],deck['end_index'],self.indices_to_keep)
+		self.T=Gen.T(self,deck['X'],deck['Y'],deck['T'],deck['end_index'],self.indices_to_keep,yaml_deck['slicer'])
 
 		## Mutlimaterial Fisnar status
 		self.fisnar_status=Gen.status(self,self.T)

@@ -27,7 +27,7 @@ class Gen():
 		self.mod_G=Gen.modG(self,deck['G'],deck['sublayers'],deck['end_index'],self.indices_to_keep)
 
 		## Extruder in use for every point
-		self.T=Gen.T(self,deck['X'],deck['Y'],deck['T'],deck['end_index'],self.indices_to_keep)
+		self.T=Gen.T(self,deck['X'],deck['Y'],deck['T'],deck['end_index'],self.indices_to_keep,yaml_deck['slicer'])
 
 		## Mutlimaterial Fisnar status
 		self.fisnar_status=Gen.status(self,self.T)
@@ -83,7 +83,7 @@ class Gen():
     # @param Y Y coordinates from the extract class deck
     # @param end_index End index from the extract class deck
     # @param indices_to_keep Indices of the points that passed the distance check calculation
-	def T(self,X,Y,extruder,end_index,indices_to_keep):
+	def T(self,X,Y,extruder,end_index,indices_to_keep,slicer):
 		i=0
 		T=[]
 		for j in range(0,len(extruder[0])):
@@ -94,6 +94,8 @@ class Gen():
 			if X[1][i]>extruder[1][-1]:
 				for k in range(i,len(X[0])):
 					T.append(extruder[0][-1])
+		if len(T)==0 and slicer=="Slic3r": #for slic3r gcode
+			T = ['T0']*len(X[0])
 		if len(T)!=len(X[0]):
 			print 'X and T coordinates does not match'
 		if len(T)!=len(Y[0]):
@@ -111,7 +113,8 @@ class Gen():
 		'''Groups the coordinates of every point'''
 		XCor=[float(x[1:]) for x in X[0]]
 		YCor=[float(x[1:]) for x in Y[0]]
-		ZCor=[float(x[4:]) for x in Z]
+		#ZCor=[float(x[4:]) for x in Z] #Changed by Aziz 30 Mars 2019
+		ZCor=[float(x[1:]) for x in Z]
 		return zip(XCor,YCor,ZCor)
 
 	## Checks the distance between consecutive points and removes points that are too close for the Fisnar

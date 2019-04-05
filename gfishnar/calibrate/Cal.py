@@ -15,13 +15,13 @@ class Calibrate():
 			yaml_deck['X_init'],yaml_deck['Y_init'],yaml_deck['Z_init'],
 			yaml_deck['X_trans'],yaml_deck['Y_trans'])
 
-	## Calibrates the coordinates 
+	## Calibrates the coordinates
 	# @param distance_checked_coordinates Distance checked coordinates from the Gen class deck
-	# @param T List that gives which extruder in use for every point 
+	# @param T List that gives which extruder in use for every point
 	# @param X_init Initialization X coordinate from the input.yaml
 	# @param Y_init Initialization Y coordinate from the input.yaml
 	# @param Z_init Initialization Z coordinate from the input.yaml
-	# @param X_trans X translation between the two extruders 
+	# @param X_trans X translation between the two extruders
 	# @param Y_trans Y translation between the two extruders
 	def coord(self,distance_checked_coordinates,T,X_init,Y_init,Z_init,X_trans,Y_trans):
 

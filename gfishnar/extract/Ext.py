@@ -1,17 +1,17 @@
 #-*- coding: utf-8 -*-
 #@author: soufiane.hifdi@polyml.ca
 
-import re 
+import re
 
 ## Class extracting all the needed data from the gcode file
 class extract():
 
     ## Constructor
     # @param gcode the gcode as given by the GCODE class
-    
-    def __init__(self,gcode):
+
+    def __init__(self,gcode, yaml_deck):
         ## Start index of the print, i.e layer 1
-        self.start_index=extract.start(self,gcode)
+        self.start_index=extract.start(self,gcode, yaml_deck)
 
         ## End index of the print, i.e layer end
         self.end_index=extract.end(self,gcode)
@@ -50,19 +50,24 @@ class extract():
 
     ## Extracts the index of 'layer1'
     # @param gcode the gcode
-    def start(self,gcode):
-    	# Finds pattern:'layer 1' 
-        pattern=re.compile(r';\slayer\s1,')
+    def start(self,gcode,yaml_deck):
+        if yaml_deck['slicer'] == "Simplify3D":
+        	# Finds pattern:'layer 1'
+            pattern=re.compile(r';\slayer\s1,')
+        elif yaml_deck['slicer'] == "Slic3r":
+            # Finds pattern:'layer 0'
+            pattern=re.compile(r';\slayer\s0,')
         end= pattern.finditer(gcode)
         for endlayer in end:
             index=endlayer.start()
         # Returns the start index
         return index
 
+
     ## Extracts the X coordinates from the gcode
     # @param gcode the gcode
     # @param start_index start index of the print
-    # @param end_index end index of the print 
+    # @param end_index end index of the print
     def X(self,gcode,start_index,end_index):
     	# Finds pattern, example of pattern: X121.233
         pattern=re.compile(r'\bX\d+\.\d+\b')
@@ -72,45 +77,46 @@ class extract():
         for x in X:
     	   indices.append(x.start()+start_index)
     	# Returns all the matches and their start indicies
-        return Xmatches,indices	
+        return Xmatches,indices
 
     ## Extracts the Y coordinates from the gcode
     # @param gcode the gcode
     # @param start_index start index of the print
-    # @param end_index end index of the print 
+    # @param end_index end index of the print
     def Y(self,gcode,start_index,end_index):
     	# Finds pattern, example of pattern: Y121.233
-        pattern=re.compile(r'\bY\d+\.\d+\b') 
+        pattern=re.compile(r'\bY\d+\.\d+\b')
         Ymatches=pattern.findall(gcode[start_index:end_index])
         Y=pattern.finditer(gcode[start_index:end_index])
         indices=[]
         for y in Y:
     	   indices.append(y.start()+start_index)
     	# Returns all the matches and their start indicies
-        return Ymatches,indices	
+        return Ymatches,indices
 
     ## Extracts the layers from the gcode
     # @param gcode the gcode
     # @param start_index start index of the print
-    # @param end_index end index of the print 
+    # @param end_index end index of the print
     def layers(self,gcode,start_index,end_index):
-    	# Finds pattern, example of pattern: Z = 0.250
-        pattern=re.compile(r'\bZ\s=\s\d+\.\d+')
-        matchesZ=pattern.findall(gcode[start_index:end_index])
-        Layers= pattern.finditer(gcode[start_index:end_index])
+    	# Finds pattern, example of pattern: Z0.250
+        pattern=re.compile(r'\bZ\d+\.\d+\b') #Modified by Aziz 30/03/2019 to find layer Z coordinate from "Z0.AAA" instead of "Z = XXXX"
+        #pattern=re.compile(r'\bZ\s=\s\d+\.\d+')
+        matchesZ=pattern.findall(gcode[0:end_index])
+        Layers= pattern.finditer(gcode[0:end_index])
         indices=[]
         for layers in Layers:
-        	indices.append(layers.start()+start_index)
+        	indices.append(layers.start())
         # Returns all the matches and their start indicies
-        return matchesZ,indices	
+        return matchesZ,indices
 
     ## Extracts the G status from the gcode
     # @param gcode the gcode
     # @param start_index start index of the print
-    # @param end_index end index of the print 
+    # @param end_index end index of the print
     def G(self,gcode,start_index,end_index):
     	# Finds pattern, example of pattern: G0 X110.20
-        pattern=re.compile(r'\b(G\d+)\s\bX\d+\.\d+\b') 
+        pattern=re.compile(r'\b(G\d+)\s\bX\d+\.\d+\b')
         Gmatches=pattern.findall(gcode[start_index:end_index])
         # Only returns the first group (G\d+)
         G=pattern.finditer(gcode[start_index:end_index])
@@ -118,7 +124,7 @@ class extract():
         for g in G:
     	   indices.append(g.start(1)+start_index)
         # Returns all the matches and their start indicies
-        return Gmatches,indices	
+        return Gmatches,indices
 
     ## Extracts the sublayers from the gcode
     # @param gcode the gcode
@@ -150,7 +156,7 @@ class extract():
         for e in E:
            indices.append(e.start(1)+start_index)
         # Returns all the matches and their start indicies
-        return matches,indices 
+        return matches,indices
 
     ## Extracts extruder T0/T1 from the gcode
     # @param gcode the gcode
@@ -165,7 +171,7 @@ class extract():
         for T in extruder:
            indices.append(T.start()+start_index)
         # Returns all the matches and their start indicies
-        return matches,indices 
+        return matches,indices
 
     ## Extracts layer end from the gcode
     # @param gcode the gcode

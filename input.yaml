@@ -1,13 +1,14 @@
 InputFile:
-    Path: "cube.gcode"
+    Path: "cube 1cm slic3r.gcode"
+    Slicer: "Slic3r"
 
 Minimal print distance:
-    D: 0.8
+    D: 2
 
 Initial position:
-    X: 60
-    Y: 140
-    Z: 40
+    X: 55
+    Y: 90
+    Z: 38
 
 Translation between dispensers:
     X: 45
@@ -22,5 +23,5 @@ Rotation angle:
 
 Curved toolpath:
     Curved: True
-    Curvature radius: 40
+    Curvature radius: 1000
     Interpolation precision: 0.01
